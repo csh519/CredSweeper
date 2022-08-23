@@ -1,8 +1,11 @@
+import logging
 from typing import Dict, List, Optional
 
 from credsweeper.file_handler.analysis_target import AnalysisTarget
 from credsweeper.file_handler.content_provider import ContentProvider
 from credsweeper.utils import Util
+
+logger = logging.getLogger(__name__)
 
 
 class TextContentProvider(ContentProvider):
@@ -23,5 +26,13 @@ class TextContentProvider(ContentProvider):
             list of analysis targets based on every row in file
 
         """
-        lines = Util.read_file(self.file_path)
+        lines = None
+
+        if Util.get_extension(self.file_path) == ".xml":
+            lines, line_nums = Util.get_xml_data(self.file_path)
+            if lines:
+                return self.lines_line_num_to_targets(lines, line_nums)
+
+        if lines is None:
+            lines = Util.read_file(self.file_path)
         return self.lines_to_targets(lines)
